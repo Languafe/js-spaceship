@@ -18,7 +18,16 @@ var state = {
         right: false,
         up: false,
         down: false
-    }
+    },
+    asteroids: [{
+        id: 1,
+        x: 10,
+        y: 10,
+        movement: {
+            x: 1,
+            y: 0
+        }
+    }]
 }
 
 function update(progress) {
@@ -40,7 +49,7 @@ function updateRotation(p) {
 
 function updateMovement(p) {
     // https://en.wikipedia.org/wiki/Radian#Conversion_between_radians_and_degrees
-    
+
     var accelerationVector = {
         x: p * .3 * Math.cos((state.ship.rotation-90) * (Math.PI/180)),
         y: p * .3 * Math.sin((state.ship.rotation-90) * (Math.PI/180))
@@ -76,27 +85,45 @@ function updateMovement(p) {
 }
 
 function updatePosition(p) {
-    state.ship.x += state.ship.movement.x
-    state.ship.y += state.ship.movement.y
+    const movingObjects = [
+        state.ship,
+        ...state.asteroids
+    ]
 
-    if (state.ship.x > width) {
-        state.ship.x -= width
-    }
-    else if (state.ship.x < 0) {
-        state.ship.x += width
-    }
-    if (state.ship.y > height) {
-        state.ship.y -= height
-    }
-    else if (state.ship.y < 0) {
-        state.ship.y += height
+    for (const object of movingObjects) {
+        object.x += object.movement.x;
+        object.y += object.movement.y;
+
+        if (object.x > width) {
+            object.x -= width
+        }
+        else if (object.x < 0) {
+            object.x += width
+        }
+        if (object.y > height) {
+            object.y -= height
+        }
+        else if (object.y < 0) {
+            object.y += height
+        }
     }
 }
 
 var shipDomElement = document.getElementById('spaceship')
+var asteroidDomElements = {
+    1: document.getElementById('asteroid-1')
+}
 
 function draw() {
     shipDomElement.style.transform = `translate(${state.ship.x}px, ${state.ship.y}px) rotate(${state.ship.rotation}deg)`;
+
+    for (const asteroid of state.asteroids) {
+        const asteroidDomElement = asteroidDomElements[asteroid.id] || document.getElementById(`asteroid-${asteroid.id}`)
+        asteroidDomElement.style.transform = `translate(${asteroid.x}px, ${asteroid.y}px)`
+        if (!asteroidDomElements[asteroid.id]) {
+            asteroidDomElements[asteroid.id] = asteroidDomElement
+        }
+    }
 }
 
 function loop(timestamp) {
@@ -131,3 +158,5 @@ function handlekeyup(event) {
 
 window.addEventListener('keydown', handlekeydown, false)
 window.addEventListener('keyup', handlekeyup, false)
+
+window.focus()
