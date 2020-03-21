@@ -3,10 +3,27 @@
 var width = window.innerWidth;
 var height = 400;
 
+var ASTEROID_TYPES = {
+    small: {
+        radius: 10
+    },
+    medium: {
+        radius: 20
+    },
+    large: {
+        radius: 30
+    }
+}
+
 var state = {
     ship: {
-        x: width / 2,
-        y: height / 2,
+        radius: 20,
+        x: 0,
+        y: 0,
+        origo: {
+            x: 20,
+            y: 20
+        },
         movement: {
             x: 0,
             y: 0
@@ -21,13 +38,19 @@ var state = {
     },
     asteroids: [{
         id: 1,
-        x: 10,
-        y: 10,
+        radius: ASTEROID_TYPES.small.radius,
+        x: 100,
+        y: 100,
+        origo: {
+            x: 100 + ASTEROID_TYPES.small.radius,
+            y: 100 + ASTEROID_TYPES.small.radius
+        },
         movement: {
-            x: 1,
-            y: 0
+            x: 0.2,
+            y: 0.1
         }
-    }]
+    }],
+    collisions: []
 }
 
 function update(progress) {
@@ -36,6 +59,7 @@ function update(progress) {
     updateRotation(p)
     updateMovement(p)
     updatePosition(p)
+    checkCollisions()
 }
 
 function updateRotation(p) {
@@ -94,18 +118,46 @@ function updatePosition(p) {
         object.x += object.movement.x;
         object.y += object.movement.y;
 
-        if (object.x > width) {
+        object.origo.x += object.movement.x;
+        object.origo.y += object.movement.y;
+
+        if (object.origo.x > width) {
             object.x -= width
+            object.origo.x -= width
         }
-        else if (object.x < 0) {
+        else if (object.origo.x < 0) {
             object.x += width
+            object.origo.x += width
         }
-        if (object.y > height) {
+        if (object.origo.y > height) {
             object.y -= height
+            object.origo.y -= height
         }
-        else if (object.y < 0) {
+        else if (object.origo.y < 0) {
             object.y += height
+            object.origo.y += height
         }
+    }
+
+    document.getElementById('spaceship-x').innerText = state.ship.x.toFixed(2);
+    document.getElementById('spaceship-y').innerText = state.ship.y.toFixed(2);
+    document.getElementById('asteroid-x').innerText = state.asteroids[0].x.toFixed(2);
+    document.getElementById('asteroid-y').innerText = state.asteroids[0].y.toFixed(2);
+
+}
+
+function checkCollisions() {
+    for (const asteroid of state.asteroids) {
+            const dx = state.ship.origo.x - asteroid.origo.x
+            const dy = state.ship.origo.y - asteroid.origo.y
+            const distance = Math.sqrt(dx * dx + dy * dy)
+
+            if (distance < state.ship.radius + asteroid.radius) {
+                state.collision = true
+            }
+            else {
+                state.collision = false
+            }
     }
 }
 
@@ -116,6 +168,7 @@ var asteroidDomElements = {
 
 function draw() {
     shipDomElement.style.transform = `translate(${state.ship.x}px, ${state.ship.y}px) rotate(${state.ship.rotation}deg)`;
+    document.getElementById('collision-status').innerText = state.collision.toString()
 
     for (const asteroid of state.asteroids) {
         const asteroidDomElement = asteroidDomElements[asteroid.id] || document.getElementById(`asteroid-${asteroid.id}`)
@@ -124,6 +177,7 @@ function draw() {
             asteroidDomElements[asteroid.id] = asteroidDomElement
         }
     }
+
 }
 
 function loop(timestamp) {

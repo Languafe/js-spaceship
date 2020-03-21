@@ -12,10 +12,28 @@
         <p>Use WASD to control the spaceship</p>
     </div>
     <div id="game-canvas">
-        <div id="asteroid-1" class="asteroid"></div>
+        <div id="asteroid-1" class="asteroid asteroid-small"></div>
         <div id="spaceship"></div>
     </div>
 
+    <table>
+        <thead>
+            <tr>
+                <th>Spaceship X</th>
+                <th>Spaceship Y</th>
+                <th>Asteroid X</th>
+                <th>Asteroid Y</th>
+                <th>Collision</th>
+            </tr>
+        </thead>
+        <tr>
+            <td id="spaceship-x"></td>
+            <td id="spaceship-y"></td>
+            <td id="asteroid-x"></td>
+            <td id="asteroid-y"></td>
+            <td id="collision-status"></td>
+        </tr>
+    </table>
     <p><a href="https://github.com/Languafe/js-spaceship">https://github.com/Languafe/js-spaceship</a></p>
     <script src="index.js"></script>
 </body>
